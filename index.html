@@ -1,23 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fishing game</title>
+    <link rel="icon" href="hook.png">
     <style>
-        button { background: green; color: white; padding: 10px; border: none; cursor: pointer; display: block; margin: 10px; }
+        button {
+            background: green;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            display: block;
+            margin: 10px;
+        }
+
         body {
             margin: 0;
             overflow: hidden;
-        
+
         }
+
         canvas {
             background-image: url('Depth1.png');
             cursor: none;
         }
-       
     </style>
 </head>
+
 <body>
 </body>
 <canvas id="canvas"></canvas>
@@ -29,106 +41,103 @@
     let previousTime = 0
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
-    let width = canvas.width 
+    let width = canvas.width
     let height = canvas.height
     let state = initState()
     let stacknum = 0
-    let back = new Image()
-    back.src = 'Orangefish copy.png'
-    let img = new Image(); 
-    img.src = 'Orangefish.png'
-    let img2 = new Image()
-        img2.src = 'hook.png'
-    let basket = new Image()
-        basket.src = 'Basket.png'
-    window.requestAnimationFrame(gameLoop)
-    function gameLoop (currentTime){
+
+    const assets = {}
+    let imageSources = ["Orangefish.png", "Orangefish copy.png", "hook.png", "Basket.png"] // Add all the images you are going to use in here, then reference then with assets["image.png"]
+    Promise.all(imageSources.map(src =>
+        new Promise(resolve => {
+            const img = new Image()
+            img.src = src
+            img.onload = () => { resolve(img) }
+        }).then(img => {
+            assets[src] = img
+        })
+    )).then(gameLoop)
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillStyle = "black"
+    ctx.font = "64px Courier"
+    ctx.fillText("Loading assets...", canvas.width / 2, canvas.height / 2)
+
+    function gameLoop(currentTime) {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        updateState(currentTime-previousTime)
+        updateState(currentTime - previousTime || 0)
         drawState()
         previousTime = currentTime
         window.requestAnimationFrame(gameLoop)
     }
 
-    function initState () {
+    function initState() {
         return {
-            bubbles:[
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
-                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) }
+            bubbles: Array(10).fill(null).map(v => { return { x: Math.random() * width, y: Math.random() * height, r: Math.floor(Math.random() * 10), speed: Math.round(Math.random() * 50) } }),
+            fishes: [
+                { x: Math.random() * width, y: Math.random() * (400) + 100, caught: false, sold: false, speed: -85, num: null },
+                { x: Math.random() * width, y: Math.random() * (400) + 100, caught: false, sold: false, speed: 150, num: null },
+                { x: Math.random() * width, y: Math.random() * (400) + 100, caught: false, sold: false, speed: -170, num: null },
+                { x: Math.random() * width, y: Math.random() * (400) + 100, caught: false, sold: false, speed: 108, num: null },
+                { x: Math.random() * width, y: Math.random() * (400) + 100, caught: false, sold: false, speed: -90, num: null }
             ],
-            fishes:[
-                { x: Math.random()*width, y: Math.random()*(400) +100, caught: false, sold: false,  speed: -85, num: null},
-                { x: Math.random()*width, y:Math.random()*(400) + 100, caught: false, sold: false,  speed: 150, num: null},
-                { x: Math.random()*width, y: Math.random()*(400)  + 100, caught: false, sold: false,  speed: -170, num: null},
-                { x: Math.random()*width, y: Math.random()*(400) + 100, caught: false, sold: false,  speed: 108, num: null},
-                { x: Math.random()*width, y: Math.random()*(400) + 100, caught: false, sold: false,  speed: -90, num: null}
-            ],
-            cursor:[
-                {x:0, y:0}
+            cursor: [
+                { x: 0, y: 0 }
             ]
-        
+
         }
     }
 
-    function drawState () {
-        for(let bubble of state.bubbles){
+    function drawState() {
+        for (let bubble of state.bubbles) {
             ctx.beginPath()
-            ctx.arc(bubble.x, bubble.y, bubble.r, 0, 2*
-            Math.PI)
-            ctx.strokeStyle='white'
+            ctx.arc(bubble.x, bubble.y, bubble.r, 0, 2 *
+                Math.PI)
+            ctx.strokeStyle = 'white'
             ctx.stroke()
         }
-        for(let fish of state.fishes){
-            if(fish.speed < 0){
-                ctx.drawImage(img, fish.x, fish.y, 137, 100)
+        for (let fish of state.fishes) {
+            if (fish.speed < 0) {
+                ctx.drawImage(assets["Orangefish.png"], fish.x, fish.y, 137, 100)
             }
-            else{
-                ctx.drawImage(back, fish.x, fish.y, 137, 100)
+            else {
+                ctx.drawImage(assets["Orangefish copy.png"], fish.x, fish.y, 137, 100)
             }
         }
-        ctx.drawImage(basket, -80, 380, 400, 300)
-        for(let cursor of state.cursor){
-            ctx.drawImage(img2, cursor.x, cursor.y, 60, 42)
+        ctx.drawImage(assets["Basket.png"], -80, 380, 400, 300)
+        for (let cursor of state.cursor) {
+            ctx.drawImage(assets["hook.png"], cursor.x, cursor.y, 60, 42)
         }
         ctx.font = '30px Verdana'
-        ctx.fillStyle= 'white'
-        ctx.fillText(`Score = ${score}`, 40, 550, 300, 100)
+        ctx.fillStyle = 'white'
+        ctx.fillText(`Score = ${score}`, 120, 550, 300, 100)
     }
 
-    function updateState (timeDiff) {
-    for (let bubble of state.bubbles) {
-      bubble.y -= timeDiff / 1000 * bubble.speed
-      if(bubble.y-(2*bubble.r) < 0){
-        bubble.x = Math.random()*canvas.width
-        bubble.y = Math.random()*canvas.height
-        bubble.r = Math.floor(Math.random()*10)
-        bubble.speed = Math.round(Math.random()*50)
-      }
-    }
-    for (let fish of state.fishes) {
-      fish.x -= timeDiff / 1000 * fish.speed
-      if(fish.x+(137) > canvas.width || fish.x < 0){
-        fish.speed = fish.speed*-1
-        fish.x = 0
-      }
-    }
+    function updateState(timeDiff) {
+        for (let bubble of state.bubbles) {
+            bubble.y -= timeDiff / 1000 * bubble.speed
+            if (bubble.y - (2 * bubble.r) < 0) {
+                bubble.x = Math.random() * canvas.width
+                bubble.y = Math.random() * canvas.height
+                bubble.r = Math.floor(Math.random() * 10)
+                bubble.speed = Math.round(Math.random() * 50)
+            }
+        }
+        for (let fish of state.fishes) {
+            fish.x -= timeDiff / 1000 * fish.speed
+            if (fish.x + (137) > canvas.width || fish.x < 0) {
+                fish.speed *= -1
+                fish.x = Math.max(0, Math.min(canvas.width - 137, fish.x))
+            }
+        }
     }
 
     addEventListener('mousemove', (event) => {
         let x = event.clientX
         let y = event.clientY
-        for(let cursor of state.cursor){
-            cursor.x = x-30
-            cursor.y = y-50
+        for (let cursor of state.cursor) {
+            cursor.x = x - 30
+            cursor.y = y - 50
         }
 
     })
@@ -137,11 +146,11 @@
         let x = event.clientX
         let y = event.clientY
         for (let fish of state.fishes) {
-            if(x>fish.x && x< fish.x+137&& y>fish.y && y<fish.y+100&&fish.caught === false){
+            if (x > fish.x && x < fish.x + 137 && y > fish.y && y < fish.y + 100 && fish.caught === false) {
                 score += 5
-                fish.x = Math.random()*canvas.width 
-                fish.y = Math.random()*(400) + 100
-                fish.speed = Math.round(Math.random()*score*5) + 100
+                fish.x = Math.random() * canvas.width
+                fish.y = Math.random() * (400) + 100
+                fish.speed = Math.round(Math.random() * score * 5) + 100
             }
 
         }
