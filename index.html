@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishing game</title>
+    <style>
+        button { background: green; color: white; padding: 10px; border: none; cursor: pointer; display: block; margin: 10px; }
+        body {
+            margin: 0;
+            overflow: hidden;
+        
+        }
+        canvas {
+            background-image: url('Depth1.png');
+            cursor: url('./hook.png'), auto;
+        }
+       
+    </style>
+</head>
+<body>
+    <button id="fishOff">Remove fish from stack</button>
+</body>
+<canvas id="canvas"></canvas>
+
+<script>
+    let canvas = document.getElementById('canvas')
+    let ctx = canvas.getContext('2d')
+    let previousTime = 0
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    let width = canvas.width 
+    let height = canvas.height
+    let state = initState()
+    let stacknum = 0
+    fishOff.onclick = hideFish()
+    window.requestAnimationFrame(gameLoop)
+    function gameLoop (currentTime){
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        updateState(currentTime-previousTime)
+        drawState()
+        previousTime = currentTime
+        window.requestAnimationFrame(gameLoop)
+    }
+
+    function initState () {
+        return {
+            bubbles:[
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) },
+                { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) }
+            ],
+            fishes:[
+                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: -85, num: null},
+                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: 150, num: null},
+                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: -170, num: null},
+                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: 108, num: null},
+                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: -90, num: null}
+            ],
+            cursor:[
+                {x:0, y:0}
+            ]
+        
+        }
+    }
+
+    function drawState () {
+        for(let bubble of state.bubbles){
+            ctx.beginPath()
+            ctx.arc(bubble.x, bubble.y, bubble.r, 0, 2*
+            Math.PI)
+            ctx.strokeStyle='white'
+            ctx.stroke()
+        }
+        for(let fish of state.fishes){
+            if(!fish.sold){
+                let img = new Image(); 
+                img.src = 'Orangefish.png'
+                ctx.drawImage(img, fish.x, fish.y, 137, 100)
+            }
+        }
+        for(let cursor of state.cursor){
+        let img2 = new Image()
+        img2.src = 'hook.png'
+        ctx.drawImage(img2, cursor.x, cursor.y, 100, 100)
+        }
+    }
+
+    function updateState (timeDiff) {
+    for (let bubble of state.bubbles) {
+      bubble.y -= timeDiff / 1000 * bubble.speed
+      if(bubble.y-(2*bubble.r) < 0){
+        bubble.x = Math.random()*canvas.width
+        bubble.y = Math.random()*canvas.height
+        bubble.r = Math.floor(Math.random()*10)
+        bubble.speed = Math.round(Math.random()*50)
+      }
+    }
+    for (let fish of state.fishes) {
+      fish.x -= timeDiff / 1000 * fish.speed
+      if(fish.x+(137) > canvas.width || fish.x < 0){
+        fish.speed = fish.speed*-1
+        fish.x = 0
+      }
+    }
+    }
+
+    addEventListener('mousemove', (event) => {
+        let x = event.clinetX
+        let y = event.clientY
+        for(let cursor of state.cursor){
+            cursor.x = x
+            cursor.y = y
+        }
+
+    })
+
+    addEventListener("click", (event) => {
+        let x = event.clientX
+        let y = event.clientY
+        for (let fish of state.fishes) {
+            if(x>fish.x && x< fish.x+137&& y>fish.y && y<fish.y+100&&fish.caught === false){
+                fish.x=50
+                fish.y = canvas.height - 100 -(stacknum*25)
+                fish.speed = 0
+                stacknum +=1
+                fish.num = stacknum
+                fish.caught = true
+            }
+
+        }
+
+    })
+
+    function hideFish(){
+        for (let fish of state.fishes) {
+            if(fish.num = stacknum){
+                fish.sold = true
+                stacknum = stacknum - 1
+            }
+        }
+    }
+
+
+</script>
+
+</html>
