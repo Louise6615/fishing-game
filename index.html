@@ -13,18 +13,18 @@
         }
         canvas {
             background-image: url('Depth1.png');
-            cursor: url('./hook.png'), auto;
+            cursor: none;
         }
        
     </style>
 </head>
 <body>
-    <button id="fishOff">Remove fish from stack</button>
 </body>
 <canvas id="canvas"></canvas>
 
 <script>
     let canvas = document.getElementById('canvas')
+    let score = 0
     let ctx = canvas.getContext('2d')
     let previousTime = 0
     canvas.width = window.innerWidth
@@ -33,7 +33,14 @@
     let height = canvas.height
     let state = initState()
     let stacknum = 0
-    fishOff.onclick = hideFish()
+    let back = new Image()
+    back.src = 'Orangefish copy.png'
+    let img = new Image(); 
+    img.src = 'Orangefish.png'
+    let img2 = new Image()
+        img2.src = 'hook.png'
+    let basket = new Image()
+        basket.src = 'Basket.png'
     window.requestAnimationFrame(gameLoop)
     function gameLoop (currentTime){
         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -59,11 +66,11 @@
                 { x: Math.random()*width, y: Math.random()*height, r: Math.floor(Math.random()*10), speed: Math.round(Math.random()*50) }
             ],
             fishes:[
-                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: -85, num: null},
-                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: 150, num: null},
-                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: -170, num: null},
-                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: 108, num: null},
-                { x: Math.random()*width, y: Math.random()*height, caught: false, sold: false,  speed: -90, num: null}
+                { x: Math.random()*width, y: Math.random()*(400) +100, caught: false, sold: false,  speed: -85, num: null},
+                { x: Math.random()*width, y:Math.random()*(400) + 100, caught: false, sold: false,  speed: 150, num: null},
+                { x: Math.random()*width, y: Math.random()*(400)  + 100, caught: false, sold: false,  speed: -170, num: null},
+                { x: Math.random()*width, y: Math.random()*(400) + 100, caught: false, sold: false,  speed: 108, num: null},
+                { x: Math.random()*width, y: Math.random()*(400) + 100, caught: false, sold: false,  speed: -90, num: null}
             ],
             cursor:[
                 {x:0, y:0}
@@ -81,17 +88,20 @@
             ctx.stroke()
         }
         for(let fish of state.fishes){
-            if(!fish.sold){
-                let img = new Image(); 
-                img.src = 'Orangefish.png'
+            if(fish.speed < 0){
                 ctx.drawImage(img, fish.x, fish.y, 137, 100)
             }
+            else{
+                ctx.drawImage(back, fish.x, fish.y, 137, 100)
+            }
         }
+        ctx.drawImage(basket, -80, 380, 400, 300)
         for(let cursor of state.cursor){
-        let img2 = new Image()
-        img2.src = 'hook.png'
-        ctx.drawImage(img2, cursor.x, cursor.y, 100, 100)
+            ctx.drawImage(img2, cursor.x, cursor.y, 60, 42)
         }
+        ctx.font = '30px Verdana'
+        ctx.fillStyle= 'white'
+        ctx.fillText(`Score = ${score}`, 40, 550, 300, 100)
     }
 
     function updateState (timeDiff) {
@@ -114,11 +124,11 @@
     }
 
     addEventListener('mousemove', (event) => {
-        let x = event.clinetX
+        let x = event.clientX
         let y = event.clientY
         for(let cursor of state.cursor){
-            cursor.x = x
-            cursor.y = y
+            cursor.x = x-30
+            cursor.y = y-50
         }
 
     })
@@ -128,26 +138,15 @@
         let y = event.clientY
         for (let fish of state.fishes) {
             if(x>fish.x && x< fish.x+137&& y>fish.y && y<fish.y+100&&fish.caught === false){
-                fish.x=50
-                fish.y = canvas.height - 100 -(stacknum*25)
-                fish.speed = 0
-                stacknum +=1
-                fish.num = stacknum
-                fish.caught = true
+                score += 5
+                fish.x = Math.random()*canvas.width 
+                fish.y = Math.random()*(400) + 100
+                fish.speed = Math.round(Math.random()*score*5) + 100
             }
 
         }
 
     })
-
-    function hideFish(){
-        for (let fish of state.fishes) {
-            if(fish.num = stacknum){
-                fish.sold = true
-                stacknum = stacknum - 1
-            }
-        }
-    }
 
 
 </script>
