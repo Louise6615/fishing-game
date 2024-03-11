@@ -24,7 +24,7 @@
         }
 
         canvas {
-            background-image: url('Depth1.png');
+            background-image: linear-gradient(#5692AA, #37758F);
             cursor: none;
         }
     </style>
@@ -82,32 +82,39 @@
                 { x: Math.random() * width, y: Math.random() * (400) + 100, caught: false, sold: false, speed: -90, num: null }
             ],
             cursor: [
-                { x: 0, y: 0 }
+                { x: 0, y: 0, linex: 0 }
             ]
 
         }
     }
 
     function drawState() {
+        ctx.strokeStyle = "white"
+        ctx.beginPath()
         for (let bubble of state.bubbles) {
-            ctx.beginPath()
+            ctx.moveTo(bubble.x + bubble.r, bubble.y)
             ctx.arc(bubble.x, bubble.y, bubble.r, 0, 2 *
                 Math.PI)
-            ctx.strokeStyle = 'white'
-            ctx.stroke()
         }
+        ctx.stroke()
         for (let fish of state.fishes) {
             if (fish.speed < 0) {
-                ctx.drawImage(assets["Orangefish.png"], fish.x, fish.y, 137, 100)
+                ctx.drawImage(assets["Orangefish.png"], fish.x, fish.y, 120, 50)
             }
             else {
-                ctx.drawImage(assets["Orangefish copy.png"], fish.x, fish.y, 137, 100)
+                ctx.drawImage(assets["Orangefish copy.png"], fish.x, fish.y, 120, 50)
             }
         }
         ctx.drawImage(assets["Basket.png"], -80, 380, 400, 300)
+        ctx.strokeStyle = "black"
+        ctx.beginPath()
         for (let cursor of state.cursor) {
-            ctx.drawImage(assets["hook.png"], cursor.x, cursor.y, 60, 42)
+            ctx.drawImage(assets["hook.png"], cursor.x - 20, cursor.y - 20, 40, 40)
+            ctx.moveTo(cursor.x + 10, cursor.y - 20)
+            ctx.lineTo(cursor.linex + 10, 0)
+            cursor.linex = (cursor.linex + cursor.x) / 2
         }
+        ctx.stroke()
         ctx.font = '30px Verdana'
         ctx.fillStyle = 'white'
         ctx.fillText(`Score = ${score}`, 120, 550, 300, 100)
