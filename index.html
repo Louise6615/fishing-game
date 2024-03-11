@@ -47,7 +47,7 @@
     let stacknum = 0
 
     const assets = {}
-    let imageSources = ["Orangefish.png", "Orangefish copy.png", "hook.png", "Basket.png"] // Add all the images you are going to use in here, then reference then with assets["image.png"]
+    let imageSources = ["OrangefishL.png", "OrangefishR.png", "hook.png", "Basket.png"] // Add all the images you are going to use in here, then reference then with assets["image.png"]
     Promise.all(imageSources.map(src =>
         new Promise(resolve => {
             const img = new Image()
@@ -65,6 +65,7 @@
 
     function gameLoop(currentTime) {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if (!state.startTime) state.startTime = Date.now()
         updateState(currentTime - previousTime || 0)
         drawState()
         previousTime = currentTime
@@ -83,8 +84,8 @@
             ],
             cursor: [
                 { x: 0, y: 0, linex: 0 }
-            ]
-
+            ],
+            startTime: undefined
         }
     }
 
@@ -99,10 +100,10 @@
         ctx.stroke()
         for (let fish of state.fishes) {
             if (fish.speed < 0) {
-                ctx.drawImage(assets["Orangefish.png"], fish.x, fish.y, 120, 50)
+                ctx.drawImage(assets["OrangefishR.png"], fish.x, fish.y, 120, 50)
             }
             else {
-                ctx.drawImage(assets["Orangefish copy.png"], fish.x, fish.y, 120, 50)
+                ctx.drawImage(assets["OrangefishL.png"], fish.x, fish.y, 120, 50)
             }
         }
         ctx.drawImage(assets["Basket.png"], -80, 380, 400, 300)
@@ -118,6 +119,10 @@
         ctx.font = '30px Verdana'
         ctx.fillStyle = 'white'
         ctx.fillText(`Score = ${score}`, 120, 550, 300, 100)
+        if (state.startTime) {
+            let time = state.startTime - Date.now() + 60000
+            ctx.fillText(`Time Left = ${String((time / 1000) >> 0).padStart(2)}`, canvas.width / 2, 50)
+        }
     }
 
     function updateState(timeDiff) {
